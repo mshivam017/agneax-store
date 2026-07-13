@@ -82,7 +82,7 @@ const AppCard: React.FC<{ app: AppMetadata; onClick: () => void }> = ({ app, onC
       <div className="app-card-header">
         <div className="app-card-icon">
           <img src={app.icon_url} alt={app.name} onError={(e) => {
-            (e.target as HTMLImageElement).src = "https://raw.githubusercontent.com/agneax/store-repo/main/icons/fallback.png";
+            (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='M21 9H3M21 15H3M12 3v18'/></svg>";
           }} />
         </div>
         <div className="app-card-info">
@@ -150,7 +150,7 @@ const AppDetailModal: React.FC<{ app: AppMetadata; onClose: () => void }> = ({ a
           <div className="app-detail-header">
             <div className="app-detail-icon">
               <img src={app.icon_url} alt={app.name} onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://raw.githubusercontent.com/agneax/store-repo/main/icons/fallback.png";
+                (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='M21 9H3M21 15H3M12 3v18'/></svg>";
               }} />
             </div>
             <div className="app-detail-info">
@@ -439,7 +439,7 @@ const InstalledPage: React.FC<{ onSelectApp: (app: AppMetadata) => void }> = ({ 
                 <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                   <div className="app-card-icon" style={{ width: "44px", height: "44px" }}>
                     <img src={appMeta?.icon_url || ""} alt={installed.name} onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://raw.githubusercontent.com/agneax/store-repo/main/icons/fallback.png";
+                      (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='M21 9H3M21 15H3M12 3v18'/></svg>";
                     }} />
                   </div>
                   <div className="settings-info">
@@ -502,7 +502,7 @@ const UpdatesPage: React.FC<{ onSelectApp: (app: AppMetadata) => void }> = ({ on
                 <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
                   <div className="app-card-icon" style={{ width: "44px", height: "44px" }}>
                     <img src={catalogApp.icon_url} alt={installed.name} onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://raw.githubusercontent.com/agneax/store-repo/main/icons/fallback.png";
+                      (e.target as HTMLImageElement).src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='18' height='18' x='3' y='3' rx='2'/><path d='M21 9H3M21 15H3M12 3v18'/></svg>";
                     }} />
                   </div>
                   <div className="settings-info">
@@ -661,6 +661,39 @@ const SettingsPage: React.FC = () => {
 
         <div className="settings-card">
           <div className="settings-info">
+            <span className="settings-title">App Accent Color Theme</span>
+            <span className="settings-desc">Choose a custom primary color theme to customize the store layout.</span>
+          </div>
+          <div className="settings-control" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            {[
+              { name: "Cyan", hex: "#00E5FF" },
+              { name: "Blue", hex: "#2979FF" },
+              { name: "Pink", hex: "#FF1744" },
+              { name: "Purple", hex: "#D500F9" },
+              { name: "Green", hex: "#00E676" },
+              { name: "Orange", hex: "#FF9100" }
+            ].map((color) => (
+              <button
+                key={color.hex}
+                title={color.name}
+                onClick={() => saveSetting("accent_color", color.hex)}
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  border: settings.accent_color === color.hex ? "2px solid #FFFFFF" : "1px solid rgba(255,255,255,0.2)",
+                  background: color.hex,
+                  cursor: "pointer",
+                  boxShadow: settings.accent_color === color.hex ? `0 0 10px ${color.hex}` : "none",
+                  transition: "all 0.2s"
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="settings-card">
+          <div className="settings-info">
             <span className="settings-title">Download Save Location</span>
             <span className="settings-desc">The folder where installer packages are downloaded (blank defaults to system Downloads).</span>
           </div>
@@ -770,7 +803,25 @@ const AppLayout: React.FC = () => {
   const [historyStack, setHistoryStack] = useState<string[]>(["home"]);
   const [selectedApp, setSelectedApp] = useState<AppMetadata | null>(null);
   
-  const { downloads, toasts, dismissToast } = useApp();
+  const { downloads, toasts, dismissToast, settings } = useApp();
+
+  useEffect(() => {
+    if (settings.accent_color) {
+      document.documentElement.style.setProperty("--primary", settings.accent_color);
+      if (settings.accent_color.startsWith("#")) {
+        const hex = settings.accent_color.replace("#", "");
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        document.documentElement.style.setProperty("--primary-glow", `rgba(${r}, ${g}, ${b}, 0.15)`);
+        
+        const hr = Math.min(255, r + 20);
+        const hg = Math.min(255, g + 20);
+        const hb = Math.min(255, b + 20);
+        document.documentElement.style.setProperty("--primary-hover", `rgb(${hr}, ${hg}, ${hb})`);
+      }
+    }
+  }, [settings.accent_color]);
   
   const navigateTo = (tab: string) => {
     setSelectedApp(null);

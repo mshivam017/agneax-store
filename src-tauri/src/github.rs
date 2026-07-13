@@ -46,7 +46,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/microsoft/vscode".to_string(),
         license: "Proprietary".to_string(),
         category: "Developer Tools".to_string(),
-        icon_url: "https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/stable/code.svg".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg".to_string(),
         screenshots: vec![
             "https://code.visualstudio.com/assets/home/home-screenshot-win-lg.png".to_string(),
             "https://code.visualstudio.com/assets/home/home-screenshot-mac-lg.png".to_string()
@@ -108,7 +108,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/brave/brave-browser".to_string(),
         license: "Open Source (MPL 2.0)".to_string(),
         category: "Utilities".to_string(),
-        icon_url: "https://brave.com/static-assets/images/brave-logo-sans-text.svg".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/5/51/Brave_icon_sans_text.svg".to_string(),
         screenshots: vec![
             "https://brave.com/static-assets/images/brave-screenshot-1.png".to_string()
         ],
@@ -157,7 +157,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://gitlab.gnome.org/GNOME/gimp".to_string(),
         license: "GPLv3".to_string(),
         category: "Multimedia".to_string(),
-        icon_url: "https://www.gimp.org/images/gimp-logo.png".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/4/45/The_GIMP_icon_-_backward_compatible.svg".to_string(),
         screenshots: vec![
             "https://www.gimp.org/screenshots/gimp-2.10-screenshot.jpg".to_string()
         ],
@@ -200,7 +200,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/obsproject/obs-studio".to_string(),
         license: "GPLv2".to_string(),
         category: "Multimedia".to_string(),
-        icon_url: "https://obsproject.com/assets/images/logo.png".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/a/a2/OBS_Studio_Logo.svg".to_string(),
         screenshots: vec![
             "https://obsproject.com/assets/images/screenshot_main.png".to_string()
         ],
@@ -243,7 +243,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/blender/blender".to_string(),
         license: "GPLv3".to_string(),
         category: "Multimedia".to_string(),
-        icon_url: "https://www.blender.org/wp-content/uploads/2020/07/blender_logo_stacked.png".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/0/0c/Blender_logo_no_text.svg".to_string(),
         screenshots: vec![
             "https://www.blender.org/wp-content/uploads/2024/03/blender_4_1_splash.jpg".to_string()
         ],
@@ -286,7 +286,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/discord".to_string(),
         license: "Proprietary".to_string(),
         category: "Productivity".to_string(),
-        icon_url: "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.svg".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/3/3b/Discord_logo_sans_text.svg".to_string(),
         screenshots: vec![
             "https://discord.com/assets/8a9d187ccafaf4e930f72023d5ec6866.svg".to_string()
         ],
@@ -329,7 +329,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/videolan/vlc".to_string(),
         license: "GPLv2".to_string(),
         category: "Multimedia".to_string(),
-        icon_url: "https://images.videolan.org/vlc/images/vlc-cone.svg".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/e/e6/VLC_Icon.svg".to_string(),
         screenshots: vec![
             "https://images.videolan.org/vlc/screenshots/vlc-3.0.jpg".to_string()
         ],
@@ -372,7 +372,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/spotify".to_string(),
         license: "Proprietary".to_string(),
         category: "Multimedia".to_string(),
-        icon_url: "https://www.scdn.co/co/artist/spotify-logo.png".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg".to_string(),
         screenshots: vec![
             "https://www.spotify.com/us/og-image.png".to_string()
         ],
@@ -415,7 +415,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/docker/docker-desktop".to_string(),
         license: "Proprietary (Free for Personal Use)".to_string(),
         category: "Developer Tools".to_string(),
-        icon_url: "https://www.docker.com/wp-content/uploads/2023/05/symbol-blue-docker-logo.png".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.svg".to_string(),
         screenshots: vec![
             "https://www.docker.com/wp-content/uploads/2021/11/Docker-Desktop-Dashboard.png".to_string()
         ],
@@ -457,7 +457,7 @@ fn get_bundled_apps() -> Vec<AppMetadata> {
         github: "https://github.com/python/cpython".to_string(),
         license: "PSF License".to_string(),
         category: "Developer Tools".to_string(),
-        icon_url: "https://www.python.org/static/community_logos/python-logo-only.png".to_string(),
+        icon_url: "https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg".to_string(),
         screenshots: vec![
             "https://www.python.org/static/img/python-logo.png".to_string()
         ],
