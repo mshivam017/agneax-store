@@ -2,23 +2,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary: #FF6A00;
-  --primary-glow: rgba(255, 106, 0, 0.15);
-  --primary-hover: #ff8533;
-  --secondary: #121212;
-  --accent: #F4B400;
-  --background: #0F1115;
-  --card-bg: rgba(18, 18, 18, 0.6);
-  --sidebar-bg: rgba(10, 11, 14, 0.85);
-  --header-bg: rgba(15, 17, 21, 0.7);
-  --border: rgba(255, 255, 255, 0.05);
-  --border-hover: rgba(255, 106, 0, 0.3);
+  --primary: #00E5FF;
+  --primary-glow: rgba(0, 229, 255, 0.15);
+  --primary-hover: #33ECFF;
+  --secondary: #0B0E14;
+  --accent: #7B2CBF;
+  --background: #07090E;
+  --card-bg: rgba(15, 22, 36, 0.5);
+  --sidebar-bg: rgba(8, 11, 19, 0.85);
+  --header-bg: rgba(7, 9, 14, 0.7);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(0, 229, 255, 0.4);
   --text: #FFFFFF;
-  --text-secondary: #9E9E9E;
-  --text-muted: #5e626e;
-  --glass-blur: blur(20px);
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --glass-blur: blur(25px);
   --font: 'Inter', sans-serif;
-  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -886,6 +886,11 @@ body {
   font-size: 0.8rem;
   cursor: pointer;
   outline: none;
+}
+
+.filter-select option, .settings-control select option {
+  background: #0B0E14;
+  color: #FFFFFF;
 }
 
 .filter-select:focus {

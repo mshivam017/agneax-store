@@ -6,24 +6,33 @@ use std::process::Command;
 use rusqlite::{params, Connection};
 use crate::shortcut::create_windows_shortcut;
 use crate::logger::log_step;
+use std::os::windows::process::CommandExt;
+
+const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+fn new_hidden_command(program: &str) -> Command {
+    let mut cmd = Command::new(program);
+    cmd.creation_flags(CREATE_NO_WINDOW);
+    cmd
+}
 
 pub fn is_winget_available() -> bool {
-    Command::new("where.exe").arg("winget").output().map(|o| o.status.success()).unwrap_or(false)
+    new_hidden_command("where.exe").arg("winget").output().map(|o| o.status.success()).unwrap_or(false)
 }
 
 pub fn is_choco_available() -> bool {
-    Command::new("where.exe").arg("choco").output().map(|o| o.status.success()).unwrap_or(false)
+    new_hidden_command("where.exe").arg("choco").output().map(|o| o.status.success()).unwrap_or(false)
 }
 
 pub fn is_scoop_available() -> bool {
-    Command::new("where.exe").arg("scoop").output().map(|o| o.status.success()).unwrap_or(false)
+    new_hidden_command("where.exe").arg("scoop").output().map(|o| o.status.success()).unwrap_or(false)
 }
 
 pub fn run_winget_install(package_id: &str, app_id: &str, db_path: &Path) -> Result<(), String> {
     let conn = Connection::open(db_path).map_err(|e| e.to_string())?;
     log_step(&conn, app_id, "Installing", "Info", &format!("Running winget command: winget install {} --silent", package_id));
     
-    let output = Command::new("winget")
+    let output = new_hidden_command("winget")
         .args(&["install", package_id, "--silent", "--accept-source-agreements", "--accept-package-agreements"])
         .output()
         .map_err(|e| format!("Failed to spawn winget process: {}", e))?;
@@ -46,7 +55,7 @@ pub fn run_choco_install(package_id: &str, app_id: &str, db_path: &Path) -> Resu
     
     // Chocolatey usually requires administrator privileges, so we can try to run it.
     // If it fails, the error logs will guide the user.
-    let output = Command::new("choco")
+    let output = new_hidden_command("choco")
         .args(&["install", package_id, "-y"])
         .output()
         .map_err(|e| format!("Failed to spawn choco process: {}", e))?;
@@ -66,7 +75,7 @@ pub fn run_scoop_install(package_id: &str, app_id: &str, db_path: &Path) -> Resu
     let conn = Connection::open(db_path).map_err(|e| e.to_string())?;
     log_step(&conn, app_id, "Installing", "Info", &format!("Running scoop command: scoop install {}", package_id));
     
-    let output = Command::new("scoop")
+    let output = new_hidden_command("scoop")
         .args(&["install", package_id])
         .output()
         .map_err(|e| format!("Failed to spawn scoop process: {}", e))?;
@@ -114,7 +123,7 @@ pub fn run_direct_msi_exe_install(
     // In that case, we spawn it using powershell Start-Process -Verb RunAs which forces UAC prompt:
     log_step(&conn, app_id, "Installing", "Info", &format!("Executing command: {} {}", program, args.join(" ")));
     
-    let mut cmd = Command::new(&program);
+    let mut cmd = new_hidden_command(&program);
     for arg in &args {
         cmd.arg(arg);
     }
@@ -133,7 +142,7 @@ pub fn run_direct_msi_exe_install(
         let args_str = args.iter().map(|a| format!("'{}'", a)).collect::<Vec<String>>().join(",");
         let ps_cmd = format!("Start-Process -FilePath '{}' -ArgumentList @({}) -Verb RunAs -Wait -PassThru", program, args_str);
         
-        let elevate_out = Command::new("powershell")
+        let elevate_out = new_hidden_command("powershell")
             .args(&["-NoProfile", "-Command", &ps_cmd])
             .output()
             .map_err(|e| format!("Failed to run elevation script: {}", e))?;
@@ -259,19 +268,19 @@ pub fn uninstall_package_windows(app_id: &str, method: &str, package_id: &str, d
     
     let success = match method {
         "winget" => {
-            let output = Command::new("winget")
+            let output = new_hidden_command("winget")
                 .args(&["uninstall", package_id, "--silent"])
                 .output();
             output.map(|o| o.status.success()).unwrap_or(false)
         }
         "chocolatey" => {
-            let output = Command::new("choco")
+            let output = new_hidden_command("choco")
                 .args(&["uninstall", package_id, "-y"])
                 .output();
             output.map(|o| o.status.success()).unwrap_or(false)
         }
         "scoop" => {
-            let output = Command::new("scoop")
+            let output = new_hidden_command("scoop")
                 .args(&["uninstall", package_id])
                 .output();
             output.map(|o| o.status.success()).unwrap_or(false)
