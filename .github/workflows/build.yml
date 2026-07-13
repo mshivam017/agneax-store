@@ -32,12 +32,10 @@ jobs:
           sudo apt-get install -y \
             libgtk-3-dev \
             libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
+            libayatana-appindicator3-dev \
             librsvg2-dev \
             patchelf \
-            libsoup-3.0-dev \
-            javascriptcoregtk-4.1 \
-            libsoup-2.4-dev
+            libssl-dev
 
       - name: Install Node.js Dependencies
         run: npm install
