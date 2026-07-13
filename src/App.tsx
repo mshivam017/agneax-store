@@ -44,7 +44,7 @@ const Titlebar: React.FC<{ activePage: string; onBack: () => void; canGoBack: bo
           </button>
         )}
         <div className="titlebar-logo">
-          <Icons.Downloads size={18} style={{ color: "var(--primary)" }} />
+          <img src="/logo.png" style={{ width: "18px", height: "18px", objectFit: "contain" }} alt="Logo" />
           <span>Agneax Store {activePage ? `| ${activePage.toUpperCase()}` : ""}</span>
         </div>
       </div>
@@ -791,8 +791,8 @@ const AboutPage: React.FC = () => {
   return (
     <div className="page-container">
       <div className="about-header">
-        <div className="about-logo">
-          <Icons.Downloads size={40} style={{ color: "var(--primary)" }} />
+        <div className="about-logo" style={{ background: "transparent", border: "none" }}>
+          <img src="/logo.png" style={{ width: "64px", height: "64px", objectFit: "contain" }} alt="Logo" />
         </div>
         <h2 style={{ fontSize: "1.6rem", fontWeight: 800 }}>Agneax Store</h2>
         <span className="about-version">v1.0.0 Stable</span>
