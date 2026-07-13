@@ -65,7 +65,11 @@ const Titlebar: React.FC<{ activePage: string; onBack: () => void; canGoBack: bo
 
 // --- APP CARD COMPONENT ---
 const AppCard: React.FC<{ app: AppMetadata; onClick: () => void }> = ({ app, onClick }) => {
-  const { installedApps, installApp, launchApp } = useApp();
+  const { installedApps, installApp, launchApp, downloads } = useApp();
+  
+  const activeDl = Object.values(downloads).find(
+    (dl) => dl.app_id === app.id && (dl.status === "Downloading" || dl.status === "Pending" || dl.status === "Paused")
+  );
   const isInstalled = installedApps.some((ia) => ia.app_id === app.id);
 
   const handleActionClick = (e: React.MouseEvent) => {
@@ -96,8 +100,8 @@ const AppCard: React.FC<{ app: AppMetadata; onClick: () => void }> = ({ app, onC
           <span className="app-card-category">{app.category}</span>
           <span className="app-card-price">{app.license}</span>
         </div>
-        <button className="btn-card-action" onClick={handleActionClick}>
-          {isInstalled ? "Launch" : "Install"}
+        <button className="btn-card-action" onClick={handleActionClick} disabled={!!activeDl} style={activeDl ? { opacity: 0.8, cursor: "not-allowed" } : {}}>
+          {isInstalled ? "Launch" : activeDl ? `${activeDl.progress.toFixed(0)}%` : "Install"}
         </button>
       </div>
     </div>
@@ -106,7 +110,11 @@ const AppCard: React.FC<{ app: AppMetadata; onClick: () => void }> = ({ app, onC
 
 // --- APP DETAILS MODAL DIALOG ---
 const AppDetailModal: React.FC<{ app: AppMetadata; onClose: () => void }> = ({ app, onClose }) => {
-  const { installedApps, favorites, toggleFavorite, installApp, uninstallApp, launchApp, showToast } = useApp();
+  const { installedApps, favorites, toggleFavorite, installApp, uninstallApp, launchApp, showToast, downloads } = useApp();
+  
+  const activeDl = Object.values(downloads).find(
+    (dl) => dl.app_id === app.id && (dl.status === "Downloading" || dl.status === "Pending" || dl.status === "Paused")
+  );
   const [logs, setLogs] = useState<any[]>([]);
   const isInstalled = installedApps.some((ia) => ia.app_id === app.id);
   const installedVersion = installedApps.find((ia) => ia.app_id === app.id)?.version;
@@ -163,6 +171,11 @@ const AppDetailModal: React.FC<{ app: AppMetadata; onClose: () => void }> = ({ a
                     <button className="btn-primary" onClick={() => launchApp(app.id)}>Launch</button>
                     <button className="btn-secondary" onClick={() => uninstallApp(app.id)}>Uninstall</button>
                   </>
+                ) : activeDl ? (
+                  <button className="btn-primary" disabled style={{ opacity: 0.8, cursor: "not-allowed", display: "flex", alignItems: "center", gap: "8px" }}>
+                    {activeDl.status === "Paused" ? `Paused (${activeDl.progress.toFixed(0)}%)` : `Downloading (${activeDl.progress.toFixed(0)}%)`}
+                    <div className="spinner"></div>
+                  </button>
                 ) : (
                   <button className="btn-primary" onClick={() => installApp(app.id)}>Install</button>
                 )}

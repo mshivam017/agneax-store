@@ -15,7 +15,7 @@ pub mod windows;
 pub mod linux;
 
 #[tauri::command]
-pub async fn install_app(app_id: String) -> Result<(), String> {
+pub async fn install_app(app_id: String, app: tauri::AppHandle) -> Result<(), String> {
     let db_path = crate::db::get_db_path();
     let conn = Connection::open(&db_path).map_err(|e| e.to_string())?;
     
@@ -85,7 +85,7 @@ pub async fn install_app(app_id: String) -> Result<(), String> {
             let download_path = cache_dir.join(&temp_filename);
             
             log_step(&conn, &app_id, "Downloading", "Info", &format!("Downloading installer from: {}", dl_url));
-            download_installer_file(dl_url, &download_path).await?;
+            download_installer_file(&app_id, &name, &version, dl_url, &download_path, &app).await?;
             log_step(&conn, &app_id, "Downloading", "Success", "Installer downloaded successfully.");
             
             // Verify hash if present
@@ -197,7 +197,7 @@ pub async fn install_app(app_id: String) -> Result<(), String> {
             let download_path = cache_dir.join(&temp_filename);
             
             log_step(&conn, &app_id, "Downloading", "Info", &format!("Downloading source file: {}", dl_url));
-            download_installer_file(dl_url, &download_path).await?;
+            download_installer_file(&app_id, &name, &version, dl_url, &download_path, &app).await?;
             log_step(&conn, &app_id, "Downloading", "Success", "Source download complete.");
             
             // Verify hash if present
@@ -327,7 +327,18 @@ pub fn get_installed_apps() -> Result<serde_json::Value, String> {
 }
 
 // Download Helper
-async fn download_installer_file(url: &str, save_path: &Path) -> Result<(), String> {
+async fn download_installer_file(
+    app_id: &str,
+    app_name: &str,
+    version: &str,
+    url: &str,
+    save_path: &Path,
+    app: &tauri::AppHandle,
+) -> Result<(), String> {
+    use std::time::Instant;
+    use tauri::Emitter;
+    use crate::downloader::DownloadProgress;
+
     let client = reqwest::Client::new();
     let res = client.get(url).send().await
         .map_err(|e| format!("Failed to initiate download: {}", e))?;
@@ -336,15 +347,72 @@ async fn download_installer_file(url: &str, save_path: &Path) -> Result<(), Stri
         return Err(format!("Download request failed with status: {}", res.status()));
     }
     
+    let total_size = res.content_length().unwrap_or(0);
     let mut file = fs::File::create(save_path)
         .map_err(|e| format!("Failed to create local destination file: {}", e))?;
         
+    let mut downloaded = 0;
     let mut stream = res.bytes_stream();
+    let start_time = Instant::now();
+    let mut last_emit = Instant::now();
+    let mut session_downloaded = 0;
+    let download_id = format!("install_dl_{}", app_id);
+    
     while let Some(chunk_result) = stream.next().await {
         let chunk = chunk_result.map_err(|e| format!("Error receiving payload chunk: {}", e))?;
         file.write_all(&chunk)
             .map_err(|e| format!("Failed to write chunk to local storage: {}", e))?;
+            
+        downloaded += chunk.len() as u64;
+        session_downloaded += chunk.len() as u64;
+        
+        if last_emit.elapsed().as_millis() >= 200 || downloaded == total_size {
+            let elapsed_sec = start_time.elapsed().as_secs_f64();
+            let speed = if elapsed_sec > 0.0 { session_downloaded as f64 / elapsed_sec } else { 0.0 };
+            let remaining_time = if speed > 0.0 && total_size > downloaded {
+                ((total_size - downloaded) as f64 / speed) as u64
+            } else {
+                0
+            };
+            
+            let progress = if total_size > 0 {
+                (downloaded as f64 / total_size as f64) * 100.0
+            } else {
+                0.0
+            };
+            
+            let _ = app.emit("download-progress", DownloadProgress {
+                id: download_id.clone(),
+                app_id: app_id.to_string(),
+                app_name: app_name.to_string(),
+                version: version.to_string(),
+                status: "Downloading".to_string(),
+                progress,
+                speed,
+                remaining_time,
+                downloaded_size: downloaded,
+                file_size: total_size,
+                error_message: None,
+            });
+            
+            last_emit = Instant::now();
+        }
     }
+    
+    // Emit complete event
+    let _ = app.emit("download-progress", DownloadProgress {
+        id: download_id,
+        app_id: app_id.to_string(),
+        app_name: app_name.to_string(),
+        version: version.to_string(),
+        status: "Completed".to_string(),
+        progress: 100.0,
+        speed: 0.0,
+        remaining_time: 0,
+        downloaded_size: downloaded,
+        file_size: total_size,
+        error_message: None,
+    });
     
     Ok(())
 }
