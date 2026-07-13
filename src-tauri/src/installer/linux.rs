@@ -3,7 +3,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 use crate::shortcut::create_linux_shortcut;
 use crate::logger::log_step;
 use flate2::read::GzDecoder;
