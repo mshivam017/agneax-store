@@ -664,6 +664,19 @@ const SettingsPage: React.FC = () => {
       <div className="settings-list">
         <div className="settings-card">
           <div className="settings-info">
+            <span className="settings-title">Application Theme Mode</span>
+            <span className="settings-desc">Switch between obsidian dark theme and premium slate light theme layouts.</span>
+          </div>
+          <div className="settings-control">
+            <select value={settings.theme} onChange={(e) => saveSetting("theme", e.target.value)}>
+              <option value="dark">Dark Theme</option>
+              <option value="light">Light Theme</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="settings-card">
+          <div className="settings-info">
             <span className="settings-title">GitHub Repository Source</span>
             <span className="settings-desc">Specify the target repository owner/repo format for catalog sync data.</span>
           </div>
@@ -875,7 +888,7 @@ const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="app-container">
+    <div className={`app-container ${settings.theme === "light" ? "light-theme" : "dark-theme"}`}>
       {/* Titlebar */}
       <Titlebar
         activePage={activeTab}
