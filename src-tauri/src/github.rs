@@ -591,31 +591,39 @@ pub async fn sync_catalog_impl(db_path: PathBuf, github_repo: String) -> Result<
     }
     
     Ok(fetched_apps.len())
-}
-
-// Background Sync Worker Loop
+}// Background Sync Worker Loop
 pub fn start_background_sync(db_path: PathBuf) {
-    tokio::spawn(async move {
-        loop {
-            // Retrieve synchronization repository from settings
-            let repo = {
-                if let Ok(conn) = Connection::open(&db_path) {
-                    conn.query_row::<String, _, _>(
-                        "SELECT value FROM settings WHERE key = 'github_repo'",
-                        [],
-                        |row| row.get(0),
-                    ).unwrap_or_else(|_| "agneax/store-repo".to_string())
-                } else {
-                    "agneax/store-repo".to_string()
-                }
-            };
-            
-            println!("[SYNC-WORKER] Launching background catalog sync for repo: {}", repo);
-            let _ = sync_catalog_impl(db_path.clone(), repo).await;
-            
-            // Sync every 4 hours
-            tokio::time::sleep(tokio::time::Duration::from_secs(4 * 3600)).await;
-        }
+    std::thread::spawn(move || {
+        let rt = match tokio::runtime::Runtime::new() {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("[SYNC-WORKER] Failed to create background tokio runtime: {}", e);
+                return;
+            }
+        };
+        
+        rt.block_on(async move {
+            loop {
+                // Retrieve synchronization repository from settings
+                let repo = {
+                    if let Ok(conn) = Connection::open(&db_path) {
+                        conn.query_row::<String, _, _>(
+                            "SELECT value FROM settings WHERE key = 'github_repo'",
+                            [],
+                            |row| row.get(0),
+                        ).unwrap_or_else(|_| "agneax/store-repo".to_string())
+                    } else {
+                        "agneax/store-repo".to_string()
+                    }
+                };
+                
+                println!("[SYNC-WORKER] Launching background catalog sync for repo: {}", repo);
+                let _ = sync_catalog_impl(db_path.clone(), repo).await;
+                
+                // Sleep for 1 hour before next sync
+                tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+            }
+        });
     });
 }
 
